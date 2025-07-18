@@ -1,1 +1,706 @@
 # KK
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>星恋物语：凌夜篇</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans SC', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            touch-action: manipulation;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(100, 100, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255, 100, 255, 0.1) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration, 3s) infinite ease-in-out;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 15px;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 顶部导航 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(16, 14, 42, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 10px;
+        }
+        
+        .game-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6ec4, #7873f5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .chapter-indicator {
+            background: rgba(120, 115, 245, 0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        /* 主游戏区域 */
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .character-display {
+            background: rgba(16, 14, 42, 0.7);
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+            height: 60vh;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .character-image {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 85%;
+            max-width: 100%;
+            object-fit: contain;
+            transition: all 0.5s;
+            z-index: 1;
+            filter: drop-shadow(0 0 20px rgba(120, 115, 245, 0.5));
+        }
+        
+        .character-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(30, 26, 71, 0.8);
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(5px);
+            z-index: 2;
+        }
+        
+        .character-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .character-title {
+            font-size: 0.9rem;
+            color: #b8b5ff;
+            margin-bottom: 10px;
+        }
+        
+        .progress-container {
+            margin-bottom: 10px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            color: #e0e0ff;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #7873f5, #ff6ec4);
+        }
+        
+        /* 对话区域 */
+        .dialogue-container {
+            background: rgba(16, 14, 42, 0.7);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            min-height: 30vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .dialogue-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .dialogue-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #7873f5, #ff6ec4);
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+        
+        .dialogue-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .dialogue-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #e0e0ff;
+            margin-bottom: 20px;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 150px;
+            transition: all 0.3s;
+        }
+        
+        .dialogue-text::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .dialogue-text::-webkit-scrollbar-thumb {
+            background: rgba(255, 158, 197, 0.5);
+            border-radius: 5px;
+        }
+        
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .choice {
+            background: rgba(120, 115, 245, 0.2);
+            border: 2px solid rgba(255, 158, 197, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            touch-action: manipulation;
+        }
+        
+        .choice:active {
+            background: rgba(120, 115, 245, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(16, 14, 42, 0.9);
+            border-radius: 20px;
+            padding: 15px;
+            margin-top: 15px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 15px;
+            transition: all 0.3s;
+        }
+        
+        .nav-item:active {
+            background: rgba(120, 115, 245, 0.3);
+        }
+        
+        .nav-icon {
+            font-size: 1.4rem;
+            color: #b8b5ff;
+        }
+        
+        .nav-text {
+            font-size: 0.8rem;
+            color: #e0e0ff;
+        }
+        
+        /* 动画效果 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        
+        .float {
+            animation: float 6s infinite ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .heart-effect {
+            position: absolute;
+            font-size: 2rem;
+            color: #ff6ec4;
+            z-index: 10;
+            animation: heartFloat 1.5s ease-out forwards;
+        }
+        
+        @keyframes heartFloat {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-100px) scale(0.5); }
+        }
+        
+        /* 响应式调整 */
+        @media (max-height: 700px) {
+            .character-display {
+                height: 50vh;
+            }
+            
+            .dialogue-container {
+                min-height: 25vh;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .character-display {
+                height: 45vh;
+            }
+            
+            .dialogue-text {
+                max-height: 100px;
+            }
+        }
+        
+        /* 剧情章节样式 */
+        .story-title {
+            text-align: center;
+            font-size: 1.8rem;
+            margin: 20px 0;
+            background: linear-gradient(45deg, #ff9ec5, #7873f5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .story-subtitle {
+            text-align: center;
+            color: #b8b5ff;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+    
+    <div class="container" id="game-container">
+        <!-- 顶部导航栏 -->
+        <div class="top-bar">
+            <div class="game-title">星恋物语：凌夜篇</div>
+            <div class="chapter-indicator">第一章：命运的邂逅</div>
+        </div>
+        
+        <div class="game-area">
+            <!-- 角色展示区域 -->
+            <div class="character-display">
+                <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=600&w=400" alt="凌夜" class="character-image float" id="character-img">
+                
+                <div class="character-info fade-in">
+                    <div class="character-name">
+                        <span id="current-character">凌夜</span>
+                        <span class="character-tag" style="background: rgba(120, 115, 245, 0.8); padding: 3px 10px; border-radius: 20px; font-size: 0.8rem;">星际指挥官</span>
+                    </div>
+                    <div class="character-title" id="character-title">冷静果断的舰队指挥官</div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>好感度</span>
+                            <span id="affection-value">30%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" id="affection-bar" style="width: 30%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>剧情进度</span>
+                            <span>第1节</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 15%; background: linear-gradient(90deg, #ff9ec5, #ff6ec4);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 剧情章节标题 -->
+            <div class="story-title">第一章：命运的邂逅</div>
+            <div class="story-subtitle">在星辰大海中，遇见那个改变你一生的人</div>
+            
+            <!-- 对话区域 -->
+            <div class="dialogue-container">
+                <div class="dialogue-header">
+                    <div class="dialogue-avatar">凌</div>
+                    <div class="dialogue-name">凌夜</div>
+                </div>
+                
+                <div class="dialogue-text">
+                    <p>（指挥室的门滑开，你第一次见到凌夜指挥官。他站在星图前，身姿挺拔如松，深邃的目光仿佛能穿透星辰）</p>
+                    <p>"你就是新来的助理指挥官？我是凌夜，星穹舰队的指挥官。在开始工作前，我需要了解你的决心。"</p>
+                </div>
+                
+                <div class="choices">
+                    <div class="choice" data-affection="5">"凌夜指挥官，我一直仰慕您的战绩，希望能向您学习"</div>
+                    <div class="choice" data-affection="3">"是的，长官。我会全力以赴完成我的职责"</div>
+                    <div class="choice" data-affection="1">"我只是服从分配来到这里"</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <div class="nav-item">
+                <i class="fas fa-book nav-icon"></i>
+                <div class="nav-text">回忆</div>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-heart nav-icon"></i>
+                <div class="nav-text">好感</div>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-image nav-icon"></i>
+                <div class="nav-text">相册</div>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-cog nav-icon"></i>
+                <div class="nav-text">设置</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 创建星空背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // 随机大小
+                const size = Math.random() * 3;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // 随机位置
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // 随机动画时长
+                star.style.setProperty('--duration', `${Math.random() * 4 + 2}s`);
+                
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // 凌夜角色数据
+        const character = {
+            name: "凌夜",
+            title: "冷静果断的舰队指挥官",
+            image: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=600&w=400",
+            affection: 30,
+            tag: "星际指挥官",
+            tagColor: "rgba(120, 115, 245, 0.8)",
+            currentChapter: "第一章：命运的邂逅",
+            currentSection: "第1节"
+        };
+        
+        // 好感度变化
+        function updateAffection(value) {
+            character.affection = Math.min(100, Math.max(0, character.affection + value));
+            
+            // 更新UI
+            document.getElementById('affection-value').textContent = `${character.affection}%`;
+            document.getElementById('affection-bar').style.width = `${character.affection}%`;
+            
+            // 添加爱心效果
+            if (value > 0) {
+                createHeartEffect();
+            }
+        }
+        
+        // 创建爱心效果
+        function createHeartEffect() {
+            const displayArea = document.querySelector('.character-display');
+            const heart = document.createElement('div');
+            heart.classList.add('heart-effect');
+            heart.innerHTML = '<i class="fas fa-heart"></i>';
+            
+            // 随机位置
+            const xPos = Math.random() * 80 + 10;
+            heart.style.left = `${xPos}%`;
+            heart.style.bottom = '30%';
+            
+            displayArea.appendChild(heart);
+            
+            // 移除元素
+            setTimeout(() => {
+                heart.remove();
+            }, 1500);
+        }
+        
+        // 更新角色表情
+        function updateCharacterExpression(expression) {
+            const characterImg = document.getElementById('character-img');
+            
+            // 添加过渡效果
+            characterImg.style.opacity = '0';
+            
+            setTimeout(() => {
+                switch(expression) {
+                    case 'smile':
+                        characterImg.src = 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=600&w=400';
+                        break;
+                    case 'serious':
+                        characterImg.src = 'https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=600&w=400';
+                        break;
+                    case 'surprise':
+                        characterImg.src = 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=600&w=400';
+                        break;
+                    default:
+                        characterImg.src = character.image;
+                }
+                characterImg.style.opacity = '1';
+            }, 300);
+        }
+        
+        // 剧情数据
+        const story = {
+            currentScene: 0,
+            scenes: [
+                {
+                    title: "初遇",
+                    text: `（指挥室的门滑开，你第一次见到凌夜指挥官。他站在星图前，身姿挺拔如松，深邃的目光仿佛能穿透星辰）<br><br>
+                    "你就是新来的助理指挥官？我是凌夜，星穹舰队的指挥官。在开始工作前，我需要了解你的决心。"`,
+                    choices: [
+                        {text: `"凌夜指挥官，我一直仰慕您的战绩，希望能向您学习"`, affection: 5, next: 1},
+                        {text: `"是的，长官。我会全力以赴完成我的职责"`, affection: 3, next: 1},
+                        {text: `"我只是服从分配来到这里"`, affection: 1, next: 1}
+                    ]
+                },
+                {
+                    title: "初次任务",
+                    text: `（凌夜微微点头，眼中闪过一丝赞许）<br><br>
+                    "很好。现在，我们有一个紧急任务。仙女座星云边缘出现异常空间波动，我需要你协助分析数据。记住，在深空中，一个错误的决定可能危及整个舰队。"`,
+                    choices: [
+                        {text: `"我会谨慎处理的，指挥官。能具体说明需要关注的数据类型吗？"`, affection: 5, next: 2},
+                        {text: `"明白！我会立即开始分析。"`, affection: 3, next: 2},
+                        {text: `"这种任务交给AI不是更有效率吗？"`, affection: -3, next: 2}
+                    ]
+                },
+                {
+                    title: "危机时刻",
+                    text: `（突然，舰船剧烈震动！警报声响彻整个指挥室）<br><br>
+                    "空间异常正在扩大！是微型黑洞！"凌夜迅速操作控制台，"助理，我需要你的判断：是尝试穿越波动区，还是紧急跃迁？"`,
+                    choices: [
+                        {text: `"指挥官，根据数据波动模式，建议调整航向35度尝试穿越！"`, affection: 8, next: 3},
+                        {text: `"安全第一！建议立即启动紧急跃迁！"`, affection: 3, next: 3},
+                        {text: `"我...我不知道，您来决定吧！"`, affection: -5, next: 3}
+                    ]
+                },
+                {
+                    title: "舰桥独处",
+                    text: `（危机解除后，凌夜示意你留下）<br><br>
+                    "你在危机中的表现...令人印象深刻。"他走近一步，声音低沉，"知道为什么我选择你作为助理吗？因为在你眼中，我看到了和我一样的星辰。"`,
+                    choices: [
+                        {text: `"能和您并肩作战是我的荣幸，指挥官"`, affection: 5, next: 4},
+                        {text: `"其实...我一直仰慕您，从三年前的那次救援行动开始"`, affection: 10, next: 4},
+                        {text: `"我只是做了该做的事"`, affection: 3, next: 4}
+                    ]
+                },
+                {
+                    title: "星空下的告白",
+                    text: `（深夜，凌夜邀请你到观星台）<br><br>
+                    "看那颗星，织女星。"他指着窗外，"在古老传说中，它代表着无法相守的爱恋。"他突然转向你，"但我不相信命运，你愿意...和我一起创造属于我们的传说吗？"`,
+                    choices: [
+                        {text: `（握住他的手）"我愿意，无论星际多远，我都会在您身边"`, affection: 15, next: 5},
+                        {text: `"指挥官，我...我需要时间考虑"`, affection: 0, next: 5},
+                        {text: `"这不符合舰队规定，长官"`, affection: -10, next: 5}
+                    ]
+                },
+                {
+                    title: "结局",
+                    text: `（根据你的选择，故事走向不同的结局）`,
+                    choices: []
+                }
+            ]
+        };
+        
+        // 更新场景
+        function updateScene(sceneIndex) {
+            const scene = story.scenes[sceneIndex];
+            story.currentScene = sceneIndex;
+            
+            // 更新对话
+            document.querySelector('.dialogue-text').innerHTML = scene.text;
+            
+            // 更新选择
+            const choicesContainer = document.querySelector('.choices');
+            choicesContainer.innerHTML = '';
+            
+            scene.choices.forEach((choice, index) => {
+                const choiceElement = document.createElement('div');
+                choiceElement.classList.add('choice');
+                choiceElement.textContent = choice.text;
+                choiceElement.dataset.affection = choice.affection;
+                choiceElement.dataset.next = choice.next;
+                
+                choiceElement.addEventListener('click', function() {
+                    // 更新好感度
+                    updateAffection(parseInt(this.dataset.affection));
+                    
+                    // 更新角色表情
+                    if (parseInt(this.dataset.affection) > 5) {
+                        updateCharacterExpression('smile');
+                    } else if (parseInt(this.dataset.affection) < 0) {
+                        updateCharacterExpression('serious');
+                    } else {
+                        updateCharacterExpression('default');
+                    }
+                    
+                    // 进入下一场景
+                    setTimeout(() => {
+                        updateScene(parseInt(this.dataset.next));
+                    }, 1000);
+                });
+                
+                choicesContainer.appendChild(choiceElement);
+            });
+            
+            // 更新章节信息
+            if (sceneIndex === 5) {
+                showEnding();
+            }
+        }
+        
+        // 显示结局
+        function showEnding() {
+            let endingText = "";
+            
+            if (character.affection >= 70) {
+                endingText = `<p>（凌夜握住你的手，眼中闪烁着星辰般的光芒）</p>
+                <p>"从今以后，我们不仅要征服星辰大海，还要一起书写属于我们的故事。"</p>
+                <p>在银河的见证下，你们开启了浪漫的星际恋情...</p>`;
+                updateCharacterExpression('smile');
+            } else if (character.affection >= 40) {
+                endingText = `<p>凌夜微微点头："我尊重你的决定。希望未来在星海中，我们仍是默契的搭档。"</p>
+                <p>虽然爱情之花未能绽放，但你们建立了深厚的战友情谊...</p>`;
+                updateCharacterExpression('default');
+            } else {
+                endingText = `<p>凌夜的表情恢复了指挥官的专业："明白了。回到岗位吧，助理指挥官。"</p>
+                <p>你看着他转身离去的背影，心中涌起一丝遗憾...</p>`;
+                updateCharacterExpression('serious');
+            }
+            
+            document.querySelector('.dialogue-text').innerHTML = endingText;
+            document.querySelector('.choices').innerHTML = '<div class="choice" id="restart-btn">重新开始故事</div>';
+            
+            document.getElementById('restart-btn').addEventListener('click', function() {
+                character.affection = 30;
+                document.getElementById('affection-value').textContent = `${character.affection}%`;
+                document.getElementById('affection-bar').style.width = `${character.affection}%`;
+                updateCharacterExpression('default');
+                updateScene(0);
+            });
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            createStars();
+            updateScene(0);
+        });
+    </script>
+</body>
+</html>
